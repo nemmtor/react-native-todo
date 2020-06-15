@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -6,18 +6,22 @@ import {
   Alert,
   TouchableWithoutFeedback,
   Keyboard,
+  AsyncStorage
 } from 'react-native';
 
 import TodoItem from '../components/TodoItem';
 import AddTodo from '../components/AddTodo';
 import { globalStyles } from '../styles/global';
 
+
+
 export default function Home() {
-  const [todos, setTodos] = useState([
-    { text: 'Wyrzucić śmieci', key: 1 },
-    { text: 'Wyjść z psem', key: 2 },
-    { text: 'Zrobić kolacje', key: 3 },
-  ]);
+  const [todos, setTodos] = useState([]);
+
+  useEffect(()=>{
+    fetchTodosFromStorage();
+  },[])
+
 
   const pressHandler = (key) => {
     setTodos((prevTodos) => {
@@ -31,14 +35,41 @@ export default function Home() {
       return;
     }
     setTodos((prevTodos) => {
+      let newTodos;
       if (prevTodos.length === 0) {
-        return [{text: text, key: 1}]
+        newTodos = [{text: text, key: 1}]
+      } else {
+        const lastKeyString = prevTodos.slice(-1)[0].key;
+        const lastKey = parseInt(lastKeyString, 10);
+        newTodos = [...prevTodos, { text: text, key: lastKey + 1 }];
       }
-      const lastKeyString = prevTodos.slice(-1)[0].key;
-      const lastKey = parseInt(lastKeyString, 10);
-      return [...prevTodos, { text: text, key: lastKey + 1 }];
+      saveTodosToStorage(newTodos);
+      return newTodos;
     });
   };
+  
+  const fetchTodosFromStorage = async () => {
+    try {
+      const todosFromStorage = await AsyncStorage.getItem('todosState');
+      if (todosFromStorage !== null) {
+        setTodos(JSON.parse(todosFromStorage));
+      } else {
+        setTodos([]);
+      }
+    } catch (e) {
+      alert('Nieoczekiwany błąd aplikacji...');
+      setTodos([]);
+    }
+  };
+
+  const saveTodosToStorage = async (todosFromState) => {
+    try {
+      await AsyncStorage.setItem('todos', JSON.stringify(todosFromState));
+    } catch (e) {
+      // alert('Nieoczekiwany błąd aplikacji')
+      alert(e)
+    }
+  }
 
   return (
     <TouchableWithoutFeedback
