@@ -7,7 +7,7 @@
       "android",
       "web"
     ],
-    "version": "1.0.0",
+    "version": "3.0.0",
     "orientation": "portrait",
     "icon": "./assets/favicon.png",
     "splash": {
@@ -24,11 +24,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.todoapp.todoapp",
-      "buildNumber": "1.0.0"
+      "buildNumber": "3.0.0"
     },
     "android": {
       "package": "com.todoapp.todoapp",
-      "versionCode": 1
+      "versionCode": 3
     }
   }
 }

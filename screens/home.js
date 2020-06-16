@@ -20,7 +20,11 @@ export default function Home() {
 
   useEffect(()=>{
     fetchTodosFromStorage();
-  },[])
+  },[]);
+
+  useEffect(()=>{
+    saveTodosToStorage();
+  },[todos]);
 
 
   const pressHandler = (key) => {
@@ -43,28 +47,30 @@ export default function Home() {
         const lastKey = parseInt(lastKeyString, 10);
         newTodos = [...prevTodos, { text: text, key: lastKey + 1 }];
       }
-      saveTodosToStorage(newTodos);
       return newTodos;
     });
   };
   
   const fetchTodosFromStorage = async () => {
     try {
-      const todosFromStorage = await AsyncStorage.getItem('todosState');
+      const todosFromStorage = await AsyncStorage.getItem('todosStorage');
       if (todosFromStorage !== null) {
-        setTodos(JSON.parse(todosFromStorage));
+        const todosStorageParsed = await JSON.parse(todosFromStorage);
+        setTodos(todosStorageParsed)
       } else {
         setTodos([]);
       }
     } catch (e) {
-      alert('Nieoczekiwany błąd aplikacji...');
+      alert(e);
+      // alert('Nieoczekiwany błąd aplikacji...');
       setTodos([]);
     }
   };
 
-  const saveTodosToStorage = async (todosFromState) => {
+  const saveTodosToStorage = async () => {
     try {
-      await AsyncStorage.setItem('todos', JSON.stringify(todosFromState));
+      const todosAsJson = await JSON.stringify(todos);
+      await AsyncStorage.setItem('todosStorage', todosAsJson);
     } catch (e) {
       // alert('Nieoczekiwany błąd aplikacji')
       alert(e)
